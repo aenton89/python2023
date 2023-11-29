@@ -223,18 +223,18 @@ class TestFrac(unittest.TestCase):
     def test_eq(self):
         frac1 = Frac(3, 4)
         frac2 = Frac(6, 8)
-        self.assertEqual(frac1, frac2)
-        self.assertEqual(frac1, 0.75)
+        self.assertTrue(frac1 == frac2)
+        self.assertTrue(frac1 == 0.75)
 
         frac3 = Frac(5)
-        self.assertEqual(frac3, 5)
+        self.assertTrue(frac3 == 5)
 
         self.assertRaises(ValueError, frac1.__eq__, "abc")
 
     def test_ne(self):
         frac1 = Frac(3, 4)
         frac2 = Frac(5, 6)
-        self.assertNotEqual(frac1, frac2)
+        self.assertTrue(frac1 != frac2)
 
     def test_lt(self):
         f1 = Frac(3, 4)
