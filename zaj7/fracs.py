@@ -1,5 +1,6 @@
 import math
 
+
 class Frac:
     """Klasa reprezentująca ułamki."""
 
@@ -8,8 +9,8 @@ class Frac:
         if y == 0:
             raise ValueError("mianownik nie moze byc 0")
         gcd = math.gcd(int(x), int(y))
-        x = x / gcd
-        y = y / gcd
+        x = x // gcd
+        y = y // gcd
         self.x = int(x)
         self.y = int(y)
 
@@ -22,95 +23,74 @@ class Frac:
     # Py2
     #def __cmp__(self, other): pass  # cmp(frac1, frac2)
 
+    def normuj(self, other):
+        if isinstance(other, int):
+            return Frac(other)
+        elif isinstance(other, float):
+            other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
+        elif not isinstance(other, Frac):
+            raise ValueError("nie mozna porownac podanej wartosci")
+        return other
+
     # Py2.7 i Py3
     def __eq__(self, other):
-        if isinstance(other, int) or isinstance(other, Frac) or isinstance(other, float):
-            if(isinstance(other, int)):
-                other = Frac(other)
-            elif(isinstance(other, float)):
-                other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
-            gcd = math.gcd(int(self.y), int(other.y))
-            numerator1 = self.x * (other.y / gcd)
-            numerator2 = other.x * (self.y / gcd)
+        other = self.normuj(other)
+        gcd = math.gcd(int(self.y), int(other.y))
+        numerator1 = self.x * (other.y // gcd)
+        numerator2 = other.x * (self.y // gcd)
 
-            return numerator1 == numerator2
-        else:
-            raise ValueError("nie mozna porownac podanej wartosci")
+        return numerator1 == numerator2
 
     def __ne__(self, other): 
         return not self == other
 
     def __lt__(self, other):
-        if isinstance(other, int) or isinstance(other, Frac) or isinstance(other, float):
-            if(isinstance(other, int)):
-                other = Frac(other) 
-            elif(isinstance(other, float)):
-                other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
-            gcd = math.gcd(int(self.y), int(other.y))
-            numerator1 = self.x * (other.y / gcd)
-            numerator2 = other.x * (self.y / gcd)
+        other = self.normuj(other)
+        gcd = math.gcd(int(self.y), int(other.y))
+        numerator1 = self.x * (other.y // gcd)
+        numerator2 = other.x * (self.y // gcd)
 
-            return numerator1 < numerator2
-        else:
-            raise ValueError("nie mozna porownac podanej wartosci")
+        return numerator1 < numerator2
 
     def __le__(self, other): 
-        if isinstance(other, int) or isinstance(other, Frac) or isinstance(other, float):
-            if(isinstance(other, int)):
-                other = Frac(other) 
-            elif(isinstance(other, float)):
-                other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
-            gcd = math.gcd(int(self.y), int(other.y))
-            numerator1 = self.x * (other.y / gcd)
-            numerator2 = other.x * (self.y / gcd)
+        other = self.normuj(other)
+        gcd = math.gcd(int(self.y), int(other.y))
+        numerator1 = self.x * (other.y // gcd)
+        numerator2 = other.x * (self.y // gcd)
 
-            return numerator1 <= numerator2
-        else:
-            raise ValueError("nie mozna porownac podanej wartosci")
+        return numerator1 <= numerator2
 
     #def __gt__(self, other): pass
 
     #def __ge__(self, other): pass
 
     def __add__(self, other):       # frac1+frac2, frac+int
-        if isinstance(other, int):
-            return Frac(self.x + other*self.y, self.y)
-        elif isinstance(other, Frac) or isinstance(other, float):
-            if(isinstance(other, float)):
-                other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
-            gcd = math.gcd(int(self.y), int(other.y))
-            numerator1 = self.x * (other.y / gcd)
-            numerator2 = other.x * (self.y / gcd)
-            denominator = (self.y * other.y) / gcd
-            secondGcd = math.gcd(int(numerator1 + numerator2), int(denominator))
+        other = self.normuj(other)
+        gcd = math.gcd(int(self.y), int(other.y))
+        numerator1 = self.x * (other.y // gcd)
+        numerator2 = other.x * (self.y // gcd)
+        denominator = (self.y * other.y) // gcd
+        secondGcd = math.gcd(int(numerator1 + numerator2), int(denominator))
 
-            if (secondGcd != 1):
-                return Frac(int((numerator1 + numerator2) / secondGcd), int(denominator / secondGcd))
-            else:
-                return Frac(int(numerator1 + numerator2), int(denominator))
+        if (secondGcd != 1):
+            return Frac(int((numerator1 + numerator2) // secondGcd), int(denominator // secondGcd))
         else:
-            raise ValueError("nie mozna dodac podanej wartosci")
+            return Frac(int(numerator1 + numerator2), int(denominator))
 
     __radd__ = __add__              # int+frac
 
     def __sub__(self, other):       # frac1-frac2, frac-int
-        if isinstance(other, int):
-            return Frac(self.x - other*self.y, self.y)
-        elif isinstance(other, Frac) or isinstance(other, float):
-            if(isinstance(other, float)):
-                other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
-            gcd = math.gcd(int(self.y), int(other.y))
-            numerator1 = self.x * (other.y / gcd)
-            numerator2 = other.x * (self.y / gcd)
-            denominator = (self.y * other.y) / gcd
-            secondGcd = math.gcd(int(numerator1 - numerator2), int(denominator))
+        other = self.normuj(other)
+        gcd = math.gcd(int(self.y), int(other.y))
+        numerator1 = self.x * (other.y // gcd)
+        numerator2 = other.x * (self.y // gcd)
+        denominator = (self.y * other.y) // gcd
+        secondGcd = math.gcd(int(numerator1 - numerator2), int(denominator))
 
-            if (secondGcd != 1):
-                return Frac(int((numerator1 - numerator2) / secondGcd), int(denominator / secondGcd))
-            else:
-                return Frac(int(numerator1 - numerator2), int(denominator))
+        if (secondGcd != 1):
+            return Frac(int((numerator1 - numerator2) // secondGcd), int(denominator // secondGcd))
         else:
-            raise ValueError("nie mozna odjac podanej wartosci")
+            return Frac(int(numerator1 - numerator2), int(denominator))
 
     def __rsub__(self, other):      # int-frac
         # tutaj self jest frac, a other jest int!
@@ -119,15 +99,15 @@ class Frac:
     def __mul__(self, other):       # frac1*frac2, frac*int
         if isinstance(other, int):
             gcd = math.gcd(int(self.y), int(other))
-            r = other / gcd
-            return Frac(int(self.x * r), int(self.y / gcd))
+            r = other // gcd
+            return Frac(int(self.x * r), int(self.y // gcd))
         elif isinstance(other, Frac) or isinstance(other, float):
             if(isinstance(other, float)):
                 other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
             numerator = self.x * other.x
             denominator = self.y * other.y
             gcd = math.gcd(int(numerator), int(denominator))
-            return Frac(int(numerator / gcd), int(denominator / gcd))
+            return Frac(int(numerator // gcd), int(denominator // gcd))
         else:
             raise ValueError("nie mozna mnozyc przez podana wartosc")
 
@@ -136,28 +116,29 @@ class Frac:
     def __div__(self, other):       # frac1/frac2, frac/int, Py2
         if isinstance(other, int):
             gcd = math.gcd(int(self.x), int(other))
-            r = other / gcd
-            return Frac(int(self.x / gcd), int(self.y * r))
+            r = other // gcd
+            return Frac(int(self.x // gcd), int(self.y * r))
         elif isinstance(other, Frac) or isinstance(other, float):
             if(isinstance(other, float)):
                 other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
             numerator = self.x * other.y
             denominator = self.y * other.x
             gcd = math.gcd(int(numerator), int(denominator))
-            return Frac(int(numerator / gcd), int(denominator / gcd))
+            return Frac(int(numerator // gcd), int(denominator // gcd))
         else:
             raise ValueError("nie mozna dzielic przez podana wartosc")
 
     def __rdiv__(self, other):      # int/frac, Py2
         if(isinstance(other, int)):
-            gcd = math.gcd(int(self.y), int(other))
-            r = other / gcd
-            return Frac(int(self.y * r), int(self.x / gcd))
+            gcd = math.gcd(int(self.x), int(other))
+            r = other // gcd
+            return Frac(int(self.y * r), int(self.x // gcd))
         elif(isinstance(other, float)):
             other = Frac(other.as_integer_ratio()[0], other.as_integer_ratio()[1])
-            gcd = math.gcd(int(self.y), int(other.x))
-            r = other.x / gcd
-            return Frac(int(self.y * r), int(self.x / gcd))
+            numerator = self.y * other.x
+            denominator = self.x * other.y
+            gcd = math.gcd(int(numerator), int(denominator))
+            return Frac(int(numerator // gcd), int(denominator // gcd))
         else:
             raise ValueError("nie mozna dzielic przez podana wartosc")
 
@@ -265,7 +246,7 @@ class TestFrac(unittest.TestCase):
 
     def test_radd(self):
         f1 = Frac(3,4)
-        result = 1 + f1
+        result = f1.__radd__(1)
         self.assertEqual(result, Frac(7, 4))
 
     def test_sub(self):
@@ -284,7 +265,7 @@ class TestFrac(unittest.TestCase):
 
     def test_rsub(self):
         f1 = Frac(3, 4)
-        result = 2 - f1
+        result = f1.__rsub__(2)
         self.assertEqual(result, Frac(5, 4))
 
     def test_mul(self):
@@ -303,7 +284,7 @@ class TestFrac(unittest.TestCase):
 
     def test_rmul(self):
         f1 = Frac(3,4)
-        result = 2 * f1
+        result = f1.__rmul__(2)
         self.assertEqual(result, Frac(3, 2))
 
     def test_div(self):
@@ -322,7 +303,7 @@ class TestFrac(unittest.TestCase):
 
     def test_rdiv(self):
         f1 = Frac(3, 4)
-        result = 2 / f1
+        result = f1.__rdiv__(2)
         self.assertEqual(result, Frac(8, 3))
 
     def test_truediv(self):
